@@ -1,0 +1,39 @@
+<launch>
+
+    <node pkg="nodelet" type="nodelet" name="radar_manager_left" args="manager" output="screen"/>
+
+    <node pkg="nodelet" type="nodelet" name="rm_radar_left"
+          args="load rm_radar/Lidar radar_manager_left" output="screen">
+        <rosparam file="$(find rm_radar)/config/camera_left.yaml" command="load" ns="left_camera_proc_config"/>
+        <param name="camera_name" value="left_camera_proc"/>
+        <param name="img_path" value="$(find rm_radar)/config/left_camera_proc_4992.jpg"/>
+        <param name="cameraInfo_yaml_file" type="string" value="file:///$(find rm_radar)/config/camera_left.yaml" />
+        <rosparam file="$(find rm_radar)/config/mouse_callback_config_left.yaml" command="load" />
+    </node>
+
+    <node pkg="nodelet" type="nodelet" name="radar_manager_right" args="manager" output="screen"/>
+
+    <node pkg="nodelet" type="nodelet" name="rm_radar_right"
+          args="load rm_radar/Lidar radar_manager_right" output="screen">
+        <rosparam file="$(find rm_radar)/config/camera_right.yaml" command="load" ns="right_camera_proc_config"/>
+        <param name="camera_name" value="right_camera_proc"/>
+        <param name="img_path" value="$(find rm_radar)/config/right_camera_proc_1386.jpg"/>
+        <param name="cameraInfo_yaml_file" type="string" value="file:///$(find rm_radar)/config/camera_right.yaml" />
+        <rosparam file="$(find rm_radar)/config/mouse_callback_config_right.yaml" command="load" />
+    </node>
+
+     <node pkg="nodelet" type="nodelet" name="radar_manager_UI" args="manager" output="screen"/>
+     <node pkg="nodelet" type="nodelet" name="UI" args="load rm_radar/UI radar_manager_UI" output="screen">
+            <rosparam file="$(find rm_radar)/config/map.yaml" command="load" ns="map_config"/>
+            <param name="is_red" value="false"/>
+     </node>
+
+    <!-- Attention! : When you just want to test Mouse Callback function which is used to get world_to_cam matrix
+                    please ignore include file code down here-->
+    <include file="$(find rm_detector)/launch/armor_detector.launch"/>
+    <!-- This launch file is used to armor_detector to detect enemy armor -->
+    <include file="$(find livox_ros_driver)/launch/livox_lidar.launch"/>
+    <!-- Launching livox mid-70 radar, get depth information -->
+
+    <node name="rviz" pkg="rviz" type="rviz" respawn="true" args="-d $(find rm_radar)/config/UI.rviz"/>
+</launch>
